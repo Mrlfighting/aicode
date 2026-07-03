@@ -36,31 +36,41 @@ function parseMarkdown(md: string): string {
     return html;
 }
 
+import { program } from 'commander';
+
 function main() {
-    const args = process.argv.slice(2);
-    if (args.length === 0) {
-        console.error('Error: Please provide a markdown file to convert.');
-        console.error('Usage: ts-node index.ts <file.md>');
-        process.exit(1);
-    }
+    program
+        .version('1.0.0')
+        .argument('<file>', 'markdown file to convert')
+        .option('-o, --output <dir>', 'output directory')
+        .action((file, options) => {
+            const filePath = path.resolve(file);
+            if (!fs.existsSync(filePath)) {
+                console.error(`Error: File not found -> ${filePath}`);
+                process.exit(1);
+            }
 
-    const filePath = path.resolve(args[0]);
-    if (!fs.existsSync(filePath)) {
-        console.error(`Error: File not found -> ${filePath}`);
-        process.exit(1);
-    }
+            try {
+                const mdContent = fs.readFileSync(filePath, 'utf-8');
+                const htmlContent = `<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<title>Markdown to HTML</title>\n</head>\n<body>\n${parseMarkdown(mdContent)}\n</body>\n</html>`;
+                
+                let outputFilePath = filePath.replace(/\.md$/i, '.html');
+                if (options.output) {
+                    const outDir = path.resolve(options.output);
+                    if (!fs.existsSync(outDir)) {
+                        fs.mkdirSync(outDir, { recursive: true });
+                    }
+                    outputFilePath = path.join(outDir, path.basename(outputFilePath));
+                }
 
-    try {
-        const mdContent = fs.readFileSync(filePath, 'utf-8');
-        const htmlContent = `<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<title>Markdown to HTML</title>\n</head>\n<body>\n${parseMarkdown(mdContent)}\n</body>\n</html>`;
-        
-        const outputFilePath = filePath.replace(/\.md$/i, '.html');
-        fs.writeFileSync(outputFilePath, htmlContent, 'utf-8');
-        
-        console.log(`Success! HTML generated at: ${outputFilePath}`);
-    } catch (err) {
-        console.error('Error during conversion:', err);
-    }
+                fs.writeFileSync(outputFilePath, htmlContent, 'utf-8');
+                console.log(`Success! HTML generated at: ${outputFilePath}`);
+            } catch (err) {
+                console.error('Error during conversion:', err);
+            }
+        });
+
+    program.parse(process.argv);
 }
 
 main();
