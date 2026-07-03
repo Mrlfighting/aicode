@@ -4,8 +4,8 @@ import * as path from 'path';
 function parseMarkdown(md: string): string {
     let html = md;
 
-    // Code blocks
-    html = html.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+    // Code blocks (fix bug with optional language identifier and newlines)
+    html = html.replace(/```[a-z]*\r?\n([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
 
     // Headers
     html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
