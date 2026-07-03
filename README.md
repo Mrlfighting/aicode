@@ -7,6 +7,12 @@
 - TypeScript
 - Docker (可选)
 
+## 项目特点
+- 支持基础的 Markdown 语法（标题、列表、粗体、斜体、链接）。
+- **[新特性]** 支持多行代码块（```）转换。
+- **[新特性]** 使用 `commander` 构建的 CLI 界面，支持 `-o` 指定输出目录。
+- 完整包含 Dockerfile，支持云端部署与自动化流水线。
+
 ## 本地运行
 
 1. 安装依赖：
@@ -16,12 +22,12 @@ npm install
 
 2. 编译并运行：
 ```bash
-# 使用 ts-node 直接运行
-npx ts-node index.ts test.md
+# 使用 ts-node 直接运行，指定输出目录到 out
+npx ts-node index.ts test.md -o ./out
 
 # 或者编译为 js 后运行
 npx tsc
-node index.js test.md
+node index.js test.md --output ./out
 ```
 
 ## Docker 容器化运行
